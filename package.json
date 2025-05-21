@@ -1,0 +1,99 @@
+{
+  "name": "dbt-depthy",
+  "displayName": "dbt Depthy",
+  "description": "Visualize the depth of model dependencies in dbt projects",
+  "icon": "logo.png",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Visualization"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/dbt_project.yml"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "dbtDepthy.refreshManifest",
+        "title": "dbt Depthy: Refresh Manifest"
+      }
+    ],
+    "configuration": {
+      "title": "dbt Depthy",
+      "properties": {
+        "dbtDepthy.manifestPath": {
+          "type": "string",
+          "default": "target/manifest.json",
+          "description": "Path to the dbt manifest.json file relative to the project root"
+        },
+        "dbtDepthy.mediumDepthThreshold": {
+          "type": "number",
+          "default": 3,
+          "description": "Threshold for medium depth"
+        },
+        "dbtDepthy.highDepthThreshold": {
+          "type": "number",
+          "default": 8,
+          "description": "Threshold for high depth"
+        },
+        "dbtDepthy.colorLowDepth": {
+          "type": "string",
+          "default": "rgba(0, 200, 0, 0.7)",
+          "description": "Color for low depth dependencies"
+        },
+        "dbtDepthy.colorMediumDepth": {
+          "type": "string",
+          "default": "rgba(200, 200, 0, 0.7)",
+          "description": "Color for medium depth dependencies"
+        },
+        "dbtDepthy.colorHighDepth": {
+          "type": "string",
+          "default": "rgba(200, 0, 0, 0.7)",
+          "description": "Color for high depth dependencies"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "test-compile": "tsc -p ./",
+    "test-watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.95.0",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "@vscode/test-electron": "^2.1.5",
+    "eslint": "^8.18.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "ts-loader": "^9.3.1",
+    "typescript": "^4.7.4",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "keywords": [
+    "dbt",
+    "sql",
+    "visualization",
+    "dependencies"
+  ],
+  "author": "dbt Depthy Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbt-depthy/dbt-depthy"
+  }
+}
