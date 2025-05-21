@@ -12,3 +12,5 @@ tsconfig.json
 **/*.map
 **/*.vsix
 CLAUDE.md
+.claude/**
+.cursor/**
