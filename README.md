@@ -25,3 +25,7 @@ This extension contributes the following settings:
 * `dbtDepthy.colorHighDepth`: Color for high depth dependencies (default: red)
 
 You may need to run `dbt compile` for changes to take effect.
+
+## Development
+
+A `CLAUDE.md` is provided to jump start development with Claude Code. This extension was developed almost exclusively with Claude Code.
