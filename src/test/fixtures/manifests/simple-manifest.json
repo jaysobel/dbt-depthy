@@ -1,0 +1,31 @@
+{
+  "nodes": {
+    "model.test.staging_users": {
+      "unique_id": "model.test.staging_users",
+      "name": "staging_users",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["source.test.raw_users"]
+      }
+    },
+    "model.test.dim_users": {
+      "unique_id": "model.test.dim_users",
+      "name": "dim_users",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["model.test.staging_users"]
+      }
+    }
+  },
+  "child_map": {
+    "source.test.raw_users": ["model.test.staging_users"],
+    "model.test.staging_users": ["model.test.dim_users"],
+    "model.test.dim_users": []
+  },
+  "parent_map": {
+    "model.test.staging_users": ["source.test.raw_users"],
+    "model.test.dim_users": ["model.test.staging_users"]
+  }
+}

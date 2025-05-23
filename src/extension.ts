@@ -59,4 +59,6 @@ export function activate(context: vscode.ExtensionContext) {
   manifestParser.refreshManifest();
 }
 
-export function deactivate() {}
+export function deactivate(): void {
+  // Extension cleanup logic would go here if needed
+}

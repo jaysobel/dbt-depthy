@@ -31,7 +31,9 @@ export class DbtManifestParser {
   private _onManifestUpdated: vscode.EventEmitter<void> = new vscode.EventEmitter<void>();
   public readonly onManifestUpdated: vscode.Event<void> = this._onManifestUpdated.event;
 
-  constructor() {}
+  constructor() {
+    // Initialize the parser
+  }
 
   /**
    * Gets the depth of a model in the DAG
@@ -146,15 +148,12 @@ export class DbtManifestParser {
           name: node.name,
           id: id 
         });
-        
-        // Initialize with a depth of 0
-        this._modelDepths.set(node.name, 0);
-        this._modelDepths.set(id, 0);
       }
     }
 
-    // Build a dependency graph
-    const graph: Map<string, string[]> = new Map();
+    // Build dependency graph (parents for each node)
+    const parentGraph: Map<string, string[]> = new Map();
+    const childGraph: Map<string, string[]> = new Map();
     
     for (const model of models) {
       const parents = this.manifest.parent_map[model.id] || [];
@@ -164,37 +163,67 @@ export class DbtManifestParser {
         parent.startsWith('model.')
       );
       
-      graph.set(model.id, parentModels);
+      parentGraph.set(model.id, parentModels);
+      
+      // Build reverse graph for topological sort
+      for (const parent of parentModels) {
+        if (!childGraph.has(parent)) {
+          childGraph.set(parent, []);
+        }
+        childGraph.get(parent)!.push(model.id);
+      }
+      
+      if (!childGraph.has(model.id)) {
+        childGraph.set(model.id, []);
+      }
     }
 
-    // Use a BFS approach to calculate depths
-    const calculateDepth = (startNodeId: string): number => {
-      const visited = new Set<string>();
-      const queue: { id: string, depth: number }[] = [{ id: startNodeId, depth: 0 }];
-      let maxDepth = 0;
-
-      while (queue.length > 0) {
-        const { id, depth } = queue.shift()!;
+    // Calculate depths using topological sort approach for longest paths
+    const depths = new Map<string, number>();
+    const inDegree = new Map<string, number>();
+    
+    // Initialize depths and in-degrees
+    for (const model of models) {
+      const modelParents = parentGraph.get(model.id) || [];
+      // Models that only depend on sources (no model dependencies) start at depth 1
+      // Models that depend on other models start at depth 0 and will be calculated
+      depths.set(model.id, modelParents.length === 0 ? 1 : 0);
+      inDegree.set(model.id, modelParents.length);
+    }
+    
+    // Queue for nodes with no model dependencies (only depend on sources)
+    const queue: string[] = [];
+    for (const model of models) {
+      if (inDegree.get(model.id) === 0) {
+        queue.push(model.id);
+      }
+    }
+    
+    // Process nodes in topological order
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      const currentDepth = depths.get(currentId)!;
+      
+      // Update depths of children (nodes that depend on this one)
+      const children = childGraph.get(currentId) || [];
+      for (const childId of children) {
+        // Set depth to maximum of current depth or (parent depth + 1)
+        const newDepth = Math.max(depths.get(childId)!, currentDepth + 1);
+        depths.set(childId, newDepth);
         
-        if (visited.has(id)) {
-          continue;
-        }
+        // Decrease in-degree and add to queue if all dependencies processed
+        const newInDegree = inDegree.get(childId)! - 1;
+        inDegree.set(childId, newInDegree);
         
-        visited.add(id);
-        maxDepth = Math.max(maxDepth, depth);
-
-        const parents = graph.get(id) || [];
-        for (const parent of parents) {
-          queue.push({ id: parent, depth: depth + 1 });
+        if (newInDegree === 0) {
+          queue.push(childId);
         }
       }
+    }
 
-      return maxDepth;
-    };
-
-    // Calculate depth for each model
+    // Store the calculated depths
     for (const model of models) {
-      const depth = calculateDepth(model.id);
+      const depth = depths.get(model.id)!;
       this._modelDepths.set(model.name, depth);
       this._modelDepths.set(model.id, depth);
     }

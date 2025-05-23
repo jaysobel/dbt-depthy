@@ -1,0 +1,65 @@
+{
+  "nodes": {
+    "model.test.staging_users": {
+      "unique_id": "model.test.staging_users",
+      "name": "staging_users",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["source.test.raw_users"]
+      }
+    },
+    "model.test.staging_orders": {
+      "unique_id": "model.test.staging_orders",
+      "name": "staging_orders",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["source.test.raw_orders"]
+      }
+    },
+    "model.test.intermediate_user_orders": {
+      "unique_id": "model.test.intermediate_user_orders",
+      "name": "intermediate_user_orders",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["model.test.staging_users", "model.test.staging_orders"]
+      }
+    },
+    "model.test.dim_users": {
+      "unique_id": "model.test.dim_users",
+      "name": "dim_users",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["model.test.staging_users"]
+      }
+    },
+    "model.test.fct_orders": {
+      "unique_id": "model.test.fct_orders",
+      "name": "fct_orders",
+      "resource_type": "model",
+      "package_name": "test",
+      "depends_on": {
+        "nodes": ["model.test.intermediate_user_orders", "model.test.dim_users"]
+      }
+    }
+  },
+  "child_map": {
+    "source.test.raw_users": ["model.test.staging_users"],
+    "source.test.raw_orders": ["model.test.staging_orders"],
+    "model.test.staging_users": ["model.test.intermediate_user_orders", "model.test.dim_users"],
+    "model.test.staging_orders": ["model.test.intermediate_user_orders"],
+    "model.test.intermediate_user_orders": ["model.test.fct_orders"],
+    "model.test.dim_users": ["model.test.fct_orders"],
+    "model.test.fct_orders": []
+  },
+  "parent_map": {
+    "model.test.staging_users": ["source.test.raw_users"],
+    "model.test.staging_orders": ["source.test.raw_orders"],
+    "model.test.intermediate_user_orders": ["model.test.staging_users", "model.test.staging_orders"],
+    "model.test.dim_users": ["model.test.staging_users"],
+    "model.test.fct_orders": ["model.test.intermediate_user_orders", "model.test.dim_users"]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "invalid": "this is not a valid manifest",
+  "missing_nodes": true,
+  "nodes": "this should be an object"
+}

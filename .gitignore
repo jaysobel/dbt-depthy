@@ -5,3 +5,4 @@ dist
 .vscode-test
 .vscode
 .claude/
+.cursor/mcp.json
